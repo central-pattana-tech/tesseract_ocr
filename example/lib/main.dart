@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,10 +8,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -21,13 +22,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Tesseract Demo'),
+      home: const MyHomePage(title: 'Tesseract Demo'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -37,7 +38,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String _ocrText = '';
-  String _ocrHocr = '';
+  final String _ocrHocr = '';
   Map<String, String> tessimgs = {
     "kor": "https://raw.githubusercontent.com/khjde1207/tesseract_ocr/master/example/assets/test1.png",
     "en": "https://tesseract.projectnaptha.com/img/eng_bw.png",
@@ -55,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> writeToFile(ByteData data, String path) {
     final buffer = data.buffer;
-    return new File(path).writeAsBytes(buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+    return File(path).writeAsBytes(buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
   }
 
   void runFilePiker() async {
@@ -67,20 +68,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _ocr(url) async {
-    if (selectList.length <= 0) {
+    if (selectList.isEmpty) {
       print("Please select language");
       return;
     }
     path = url;
     if (kIsWeb == false && (url.indexOf("http://") == 0 || url.indexOf("https://") == 0)) {
       Directory tempDir = await getTemporaryDirectory();
-      HttpClient httpClient = new HttpClient();
+      HttpClient httpClient = HttpClient();
       HttpClientRequest request = await httpClient.getUrl(Uri.parse(url));
       HttpClientResponse response = await request.close();
       Uint8List bytes = await consolidateHttpClientResponseBytes(response);
       String dir = tempDir.path;
       print('$dir/test.jpg');
-      File file = new File('$dir/test.jpg');
+      File file = File('$dir/test.jpg');
       await file.writeAsBytes(bytes);
       url = file.path;
     }
@@ -136,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: Column(
               children: [
                 Row(
@@ -162,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   child: Row(
                                                     children: [
                                                       Text(key),
-                                                      Text(" : "),
+                                                      const Text(" : "),
                                                       Flexible(child: Text(value)),
                                                     ],
                                                   )));
@@ -172,11 +173,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   );
                                 });
                           },
-                          child: Text("urls")),
+                          child: const Text("urls")),
                     ),
                     Expanded(
                       child: TextField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'input image url',
                         ),
@@ -187,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onPressed: () {
                           _ocr(urlEditController.text);
                         },
-                        child: Text("Run")),
+                        child: const Text("Run")),
                   ],
                 ),
                 Row(
@@ -195,7 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ...LangList.map((e) {
                       return Row(children: [
                         Checkbox(
-                            value: selectList.indexOf(e) >= 0,
+                            value: selectList.contains(e),
                             onChanged: (v) async {
                               // dynamic add Tessdata
                               if (kIsWeb == false) {
@@ -214,21 +215,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                 if (!isInstalled) {
                                   bDownloadtessFile = true;
                                   setState(() {});
-                                  HttpClient httpClient = new HttpClient();
+                                  HttpClient httpClient = HttpClient();
                                   HttpClientRequest request =
-                                      await httpClient.getUrl(Uri.parse('https://github.com/tesseract-ocr/tessdata/raw/main/${e}.traineddata'));
+                                      await httpClient.getUrl(Uri.parse('https://github.com/tesseract-ocr/tessdata/raw/main/$e.traineddata'));
                                   HttpClientResponse response = await request.close();
                                   Uint8List bytes = await consolidateHttpClientResponseBytes(response);
                                   String dir = await FlutterTesseractOcr.getTessdataPath();
-                                  print('$dir/${e}.traineddata');
-                                  File file = new File('$dir/${e}.traineddata');
+                                  print('$dir/$e.traineddata');
+                                  File file = File('$dir/$e.traineddata');
                                   await file.writeAsBytes(bytes);
                                   bDownloadtessFile = false;
                                   setState(() {});
                                 }
                                 print(isInstalled);
                               }
-                              if (selectList.indexOf(e) < 0) {
+                              if (!selectList.contains(e)) {
                                 selectList.add(e);
                               } else {
                                 selectList.remove(e);
@@ -243,15 +244,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(
                     child: ListView(
                   children: [
-                    path.length <= 0
+                    path.isEmpty
                         ? Container()
-                        : path.indexOf("http") >= 0
+                        : path.contains("http")
                             ? Image.network(path)
                             : Image.file(File(path)),
                     bload
-                        ? Column(children: [CircularProgressIndicator()])
+                        ? const Column(children: [CircularProgressIndicator()])
                         : Text(
-                            '$_ocrText',
+                            _ocrText,
                           ),
                   ],
                 ))
@@ -261,12 +262,12 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             color: Colors.black26,
             child: bDownloadtessFile
-                ? Center(
+                ? const Center(
                     child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [CircularProgressIndicator(), Text('download Trained language files')],
                   ))
-                : SizedBox(),
+                : const SizedBox(),
           )
         ],
       ),
@@ -279,7 +280,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 // _ocr("");
               },
               tooltip: 'OCR',
-              child: Icon(Icons.add),
+              child: const Icon(Icons.add),
             ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
