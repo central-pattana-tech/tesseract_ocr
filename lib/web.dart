@@ -1,11 +1,6 @@
-import 'dart:io';
-import 'dart:js';
-import 'dart:typed_data';
 
-import 'package:flutter/services.dart';
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
-import 'package:path_provider/path_provider.dart';
 
 @JS('_extractText')
 external dynamic _extractText(String imagePath, dynamic args);
